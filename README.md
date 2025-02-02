@@ -1,5 +1,3 @@
-Aqui está um exemplo de um *README* para o seu aplicativo em Python com a biblioteca `customtkinter`:
-
 ---
 
 # Gerador de Nota Física
