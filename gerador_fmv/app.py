@@ -135,13 +135,13 @@ input_data = ctk.CTkEntry(frame_principal, corner_radius=8, font=font_secondary,
 
 # Bind para formatar a Data enquanto digita
 input_data.bind("<KeyRelease>", formatar_data)
-
 input_data.pack()
 
 label_data_vencimento = ctk.CTkLabel(frame_principal, corner_radius=8, font=font, width=campo_width, height=campos_height, text=campos[7], text_color=color_font, anchor='w')
 label_data_vencimento.pack()
 
 input_data_vencimento = ctk.CTkEntry(frame_principal, corner_radius=8, font=font_secondary, placeholder_text_color='#FFFFFF', fg_color=fg_color, border_color=border_color, border_width=2, width=campo_width, height=campos_height, placeholder_text='Insira a Data de Vencimento XX/XXXX')
+input_data_vencimento.bind("<KeyRelease>", formatar_data)
 input_data_vencimento.pack()
 
 button_salvar = ctk.CTkButton(frame_principal, width=button_width, corner_radius=8, height=button_height, fg_color='transparent', text_color=color_font, text='Salvar', font=('SF Pro Display', 18), border_color=color_font, border_width=2, hover_color='#5d7528')
