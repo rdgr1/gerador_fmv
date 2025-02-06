@@ -1,11 +1,8 @@
 import os
-import ctypes
 import customtkinter as ctk
-from customtkinter import CTkEntry, CTkLabel
-from PIL import Image, ImageFont
+from PIL import Image, ImageFont, ImageDraw
 
 os.environ['TK_USE_RENDERER'] = 'directwrite'
-ctypes.windll.shcore.SetProcessDpiAwareness(1)
 
 # Array Campos Imutáveis
 campos = ['Nome Cliente:', 'CPF Cliente:', 'Endereço:', 'Tipo de Serviço:', 'Débito', 'Crédito', 'Data:', 'Data Vencimento:', 'CEP:']
@@ -22,7 +19,7 @@ fg_color = '#535353'
 # Criar a janela Principal
 app = ctk.CTk()
 app.title('Gerador de Nota Física')
-app.iconbitmap(bitmap=r'C:\Users\GustavinGG\Documents\gerador_fmv\assets\imgs\png\logo.ico')
+#app.iconbitmap(bitmap=os.path.abspath('assets/imgs/png/logo.ico'))
 app.geometry('450x825+750+105')
 
 # Criar um Frame com bordas arredondadas (já que a janela não tem suporte direto para corner_radius)
@@ -31,11 +28,11 @@ frame_principal.pack_propagate(False)  # Impede que o tamanho do frame se ajuste
 frame_principal.pack()
 
 # Carregar a imagem usando Pillow
-logo_image = Image.open(r'C:\Users\GustavinGG\Documents\gerador_fmv\assets\imgs\png\Logo.png')
+#logo_image = Image.open("assets/imgs/png/Logo.png")
 # Criar a imagem CustomTkinter com a imagem carregada
-logo_progama = ctk.CTkImage(light_image=logo_image, dark_image=logo_image, size=(300, 100))
-label_logo = ctk.CTkLabel(frame_principal, image=logo_progama, text='')
-label_logo.pack(pady=10)
+#logo_progama = ctk.CTkImage(light_image=logo_image, dark_image=logo_image, size=(300, 100))
+#label_logo = ctk.CTkLabel(frame_principal, image=logo_progama, text='')
+#label_logo.pack(pady=10)
 
 font = ctk.CTkFont('SF Pro Display', size=16 , weight='normal')
 font_secondary = ctk.CTkFont('SF Pro Display', size=15 , weight='normal')
@@ -146,5 +143,6 @@ input_data_vencimento.pack()
 
 button_salvar = ctk.CTkButton(frame_principal, width=button_width, corner_radius=8, height=button_height, fg_color='transparent', text_color=color_font, text='Salvar', font=('SF Pro Display', 18), border_color=color_font, border_width=2, hover_color='#5d7528')
 button_salvar.pack(pady=25)
+
 
 app.mainloop()
