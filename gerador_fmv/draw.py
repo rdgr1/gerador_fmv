@@ -1,11 +1,10 @@
 from PIL    import Image,ImageFont,ImageDraw
 import  datetime
-fontCorpo = ImageFont .truetype(r"/home/rdgr/rd-Personal/gerador_fmv/assets/fonts/Inter_18pt-Regular.ttf",38)
-meses = {
-    1: "janeiro", 2: "fevereiro", 3: "março", 4: "abril",
-    5: "maio", 6: "junho", 7: "julho", 8: "agosto",
-    9: "setembro", 10: "outubro", 11: "novembro", 12: "dezembro"
-}
+fontCorpo = ImageFont .truetype(r"/Users/rdgr777/rdPersonal/gerador_fmv/assets/fonts/Inter_18pt-Regular.ttf",38)
+
+
+
+
 campos_pil = {
     "nota":(730,578),
     "nome":(295,770),
@@ -14,14 +13,12 @@ campos_pil = {
     "tipo_servico":(55,1150),
     "valor_debito":(825,1150),
     "valor_credito":(1110,1150),
-    "total":(),
-    "valor_extenso":(),
-    "data_vencimento":(),
+    "total":(247,1435),
+    "valor_extenso":(247,1524),
+    "data_vencimento":(530,1623),
     "data_hoje":(355,670),
 }
 data_atual = datetime.datetime.now()
-data_nota = f"{data_atual.day}-{data_atual.year}"
-data_hoje = f"{data_atual.day} de {meses[data_atual.month]} de {data_atual.year}"
 nota_value = f"DÉBITO - {data_nota}"
 nome = "Jessica Lemos"
 endereco = "Rua SVJ Quadra 2 Bloco V"
@@ -31,15 +28,7 @@ Curatela - Número do processo: 0743111-
 70.2023.8.07.0016 – Samantha Kenia Abreu
 Pereira – curadora de Ana Carolina dos 
 Anjos Santiago"""
-valor_debito = f"R$ 950"
-notaImg = Image.open(r"/home/rdgr/rd-Personal/gerador_fmv/assets/imgs/png/Nota FMV.png").convert("RGB")
-draw = ImageDraw.Draw(notaImg)
-draw.text(campos_pil["nota"],nota_value,fill='black',font=fontCorpo)
-draw.text(campos_pil["data_hoje"],data_hoje,fill='black',font=fontCorpo)
-draw.text(campos_pil["nome"],nome,fill='black',font=fontCorpo)
-draw.text((campos_pil["endereco"]),endereco,fill='black',font=fontCorpo)
-draw.text(campos_pil["cpf"],cpf,fill='black',font=fontCorpo)
-draw.text((campos_pil["tipo_servico"]),tipo_servico,fill='black',font=fontCorpo)
-draw.text((campos_pil["valor_debito"]),valor_debito,fill='black',font=fontCorpo)
-
-notaImg.save(f"Nota : {nome}.jpg")
+valor = 950
+valor_debito = f"R$ {valor}"
+valor_extenso = f"({numero_por_extenso(valor)} reais)"
+data_vencimento = "27/08/2025"
