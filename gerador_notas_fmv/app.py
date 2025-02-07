@@ -10,14 +10,13 @@ import os
 BASE_DIR = Path(__file__).resolve().parent
 NOTAS_DIR = BASE_DIR / "notas"
 NOTAS_DIR.mkdir(exist_ok=True)
-IS_WINDOWS = platform.system() == "Windows"
+IS_WINDOWS = platform.system() == "Windows" and "MacOs"
 
 # Uso
-ASSETS_DIR = BASE_DIR / "assets"
-LOGO_ICO = ASSETS_DIR / "imgs" / "png" / "logo.ico"
-LOGO_IMG = ASSETS_DIR / "imgs" / "png" / "Logo.png"
-NOTA_IMG = ASSETS_DIR / "imgs" / "png" / "Nota-FMV.png"
-FONT_PATH = ASSETS_DIR / "fonts" / "Inter_18pt-Regular.ttf"
+LOGO_ICO = Path ("/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/logo.ico")
+LOGO_IMG = Path ("/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Logo.png")
+NOTA_IMG = Path('/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Nota-FMV.png')
+FONT_PATH = Path ("/Users/rdgr777/rdPersonal/gerador_fmv/assets/fonts/Inter_18pt-Regular.ttf")
 
 if not os.path.exists(FONT_PATH):
     print(f"⚠️ Arquivo de fonte não encontrado: {FONT_PATH}. Usando fonte padrão.")
@@ -152,7 +151,7 @@ def criar_nota():
         fontCorpo = ImageFont.truetype(FONT_PATH, 38) if FONT_PATH  else ImageFont.load_default()
     except OSError:
         print("⚠️ Erro ao carregar a fonte. Usando fonte padrão.")
-        fontCorpo = ImageFont.load_default()
+        fontCorpo = ImageFont.truetype('Arial',38)
 
     notaImg = Image.open(NOTA_IMG).convert("RGB")
     draw = ImageDraw.Draw(notaImg)
@@ -200,7 +199,6 @@ def criar_nota():
             raise FileNotFoundError(f"Erro ao salvar a nota em {caminho_nota}")
     except Exception as e:
         CTkMessagebox(title="Erro", message=f"Falha ao emitir a nota: {e}", icon="cancel")
-
 # Função para formatar CPF
 def formatar_cpf(event):
     texto = input_cpf.get().replace(".", "").replace("-", "")
