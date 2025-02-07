@@ -1,9 +1,27 @@
 import datetime
-import os
+from pathlib import Path
+import platform
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 from PIL import Image, ImageFont, ImageDraw
 from textwrap import fill as wrap_text
+import os 
+# Configuração de diretórios usando pathlib
+BASE_DIR = Path(__file__).resolve().parent
+NOTAS_DIR = BASE_DIR / "notas"
+NOTAS_DIR.mkdir(exist_ok=True)
+IS_WINDOWS = platform.system() == "Windows"
+
+# Uso
+ASSETS_DIR = BASE_DIR / "assets"
+LOGO_ICO = ASSETS_DIR / "imgs" / "png" / "logo.ico"
+LOGO_IMG = ASSETS_DIR / "imgs" / "png" / "Logo.png"
+NOTA_IMG = ASSETS_DIR / "imgs" / "png" / "Nota-FMV.png"
+FONT_PATH = ASSETS_DIR / "fonts" / "Inter_18pt-Regular.ttf"
+
+if not os.path.exists(FONT_PATH):
+    print(f"⚠️ Arquivo de fonte não encontrado: {FONT_PATH}. Usando fonte padrão.")
+    FONT_PATH = None  # Define como None para carregar fonte padrão depois
 def numero_por_extenso(n):
     if n < 0 or n > 999999:
         return "Número fora do intervalo suportado (0 a 999999)"
@@ -100,21 +118,23 @@ fg_color = '#535353'
 # Criar a janela Principal
 app = ctk.CTk()
 app.title('Gerador de Nota Física')
-app.iconbitmap(bitmap='/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/logo.ico')
-app.geometry('450x825+750+105')
+if IS_WINDOWS and os.path.exists(LOGO_ICO):
+    app.iconbitmap(bitmap=LOGO_ICO)
+app.geometry('450x800+750+135')
 
 # Criar um Frame com bordas arredondadas (já que a janela não tem suporte direto para corner_radius)
 frame_principal = ctk.CTkFrame(app, width=450, height=825, corner_radius=15, fg_color='#272727')
 frame_principal.pack()
 
-# Carregar a imagem usando Pillow
-logo_image = Image.open("/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Logo.png")
-# Criar a imagem CustomTkinter com a imagem carregada
-#logo_progama = ctk.CTkImage(light_image=logo_image, dark_image=logo_image, size=(150, 60))
-#label_logo = ctk.CTkLabel(frame_principal, image=logo_progama, text='')
-#label_logo.pack(pady=10)
+if IS_WINDOWS and os.path.exists(LOGO_IMG):
+    # Carregar a imagem usando Pillow
+    logo_image = Image.open(LOGO_IMG)
+    # Criar a imagem CustomTkinter com a imagem carregada
+    logo_progama = ctk.CTkImage(light_image=logo_image, dark_image=logo_image, size=(150, 60))
+    label_logo = ctk.CTkLabel(frame_principal, image=logo_progama, text='')
+    label_logo.pack(pady=10)
 
-font_path = '/Users/rdgr777/rdPersonal/gerador_fmv/assets/fonts/Inter_18pt-Regular.ttf'
+font_path = FONT_PATH
 font_family = 'Inter'
 
 try:
@@ -126,11 +146,15 @@ except:
 
 color_font = '#9ed22c'
 
-
 # Função para emitir o recibo
 def criar_nota():
-    fontCorpo = ImageFont.truetype(r"/Users/rdgr777/rdPersonal/gerador_fmv/assets/fonts/Inter_18pt-Regular.ttf", 38)
-    notaImg = Image.open(r"/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Nota FMV.png").convert("RGB")
+    try:
+        fontCorpo = ImageFont.truetype(FONT_PATH, 38) if FONT_PATH  else ImageFont.load_default()
+    except OSError:
+        print("⚠️ Erro ao carregar a fonte. Usando fonte padrão.")
+        fontCorpo = ImageFont.load_default()
+
+    notaImg = Image.open(NOTA_IMG).convert("RGB")
     draw = ImageDraw.Draw(notaImg)
 
     # Formatando Datas
@@ -167,14 +191,16 @@ def criar_nota():
     draw.text(campos_pil["data_vencimento"], input_data_vencimento.get(), fill='black', font=fontCorpo)
 
     caminho_nota = f"notas/Nota_{input_nome.get()}.jpg"
-    notaImg.save(caminho_nota)
+# Salvar a imagem no diretório "notas"
+    try:
+        notaImg.save(caminho_nota)
+        if os.path.exists(caminho_nota):
+            CTkMessagebox(title="Sucesso", message=f"Nota emitida para {input_nome.get()}!", icon="check")
+        else:
+            raise FileNotFoundError(f"Erro ao salvar a nota em {caminho_nota}")
+    except Exception as e:
+        CTkMessagebox(title="Erro", message=f"Falha ao emitir a nota: {e}", icon="cancel")
 
-    # Exibir pop-up apenas depois que a interface atualizar
-    if os.path.exists(caminho_nota):
-        app.after(100, lambda: CTkMessagebox(title="Sucesso", message=f"Nota emitida para {input_nome.get()}!",
-                                             icon="check"))
-    else:
-        app.after(100, lambda: CTkMessagebox(title="Erro", message="Falha ao emitir a nota.", icon="cancel"))
 # Função para formatar CPF
 def formatar_cpf(event):
     texto = input_cpf.get().replace(".", "").replace("-", "")
@@ -201,6 +227,7 @@ def formatar_cep(event):
         input_cep.insert(0, f"{texto[:5]}-{texto[5:]}")
 # Funçao para Formatar Valor
 def limpar_valor(valor_str):
+
     """ Remove 'R$', espaços e converte vírgula para ponto antes da conversão """
     valor_limpo = valor_str.replace("R$", "").replace(".", "").replace(",", ".").strip()
 
@@ -303,7 +330,6 @@ input_valor = ctk.CTkEntry(frame_principal,corner_radius=8,font=font,width=campo
 input_valor.pack()
 button_salvar = ctk.CTkButton(frame_principal, width=button_width, corner_radius=8, height=button_height, fg_color='transparent', text_color=color_font, text='Salvar', font=font, border_color=color_font, border_width=2, hover_color='#5d7528',command=criar_nota)
 button_salvar.pack(pady=25)
-
 app.update_idletasks()
 app.update()
 app.mainloop()
