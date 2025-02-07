@@ -1,12 +1,9 @@
 import datetime
 import os
 import customtkinter as ctk
+from CTkMessagebox import CTkMessagebox
 from PIL import Image, ImageFont, ImageDraw
-
-
-
-##os.environ['TK_USE_RENDERER'] = 'directwrite'
-# Funcao Número por extenso
+from textwrap import fill as wrap_text
 def numero_por_extenso(n):
     if n < 0 or n > 999999:
         return "Número fora do intervalo suportado (0 a 999999)"
@@ -58,8 +55,21 @@ def numero_por_extenso(n):
         partes_final.append(converter_ate_999(resto))
 
     return " ".join(partes_final)
+# Função para limpar e formatar valores monetários corretamente
+def limpar_valor(valor_str):
+    """ Remove 'R$', espaços e converte vírgula para ponto antes da conversão """
+    valor_limpo = valor_str.replace("R$", "").replace(".", "").replace(",", ".").strip()
+    try:
+        return int(float(valor_limpo))  # Converte para float primeiro, depois para int
+    except ValueError:
+        return 0  # Retorna 0 caso a conversão falhe
+# Função para desenhar texto quebrado em múltiplas linhas
+def desenhar_texto_com_quebra(draw, posicao, texto, largura_max, font, fill="black"):
+    """ Desenha o texto quebrando em múltiplas linhas para não sair da borda """
+    texto_formatado = wrap_text(texto, width=largura_max)  # Quebra o texto em linhas menores
+    draw.text(posicao, texto_formatado, font=font, fill=fill)
 # Array Campos Imutáveis
-campos = ['Nome Cliente:', 'CPF Cliente:', 'Endereço:', 'Tipo de Serviço:', 'Débito', 'Crédito', 'Data:', 'Data Vencimento:', 'CEP:']
+campos = ['Nome Cliente:', 'CPF Cliente:', 'Endereço:', 'Tipo de Serviço:', 'Débito', 'Crédito', 'Data:', 'Data Vencimento:', 'CEP:','Valor']
 campo_width = 275
 campos_height = 35
 button_width = 290
@@ -69,13 +79,13 @@ campos_pil = {
     "nome":(295,770),
     "endereco":(345,871),
     "cpf":(247,972),
-    "tipo_servico":(55,1150),
+    "tipo_servico":(140,1150),
     "valor_debito":(825,1150),
     "valor_credito":(1110,1150),
     "total":(247,1435),
     "valor_extenso":(247,1524),
     "data_vencimento":(530,1623),
-    "data_hoje":(355,670),
+    "data_hoje":(355,670)
 }
 meses = {
     1: "janeiro", 2: "fevereiro", 3: "março", 4: "abril",
@@ -95,17 +105,16 @@ app.geometry('450x825+750+105')
 
 # Criar um Frame com bordas arredondadas (já que a janela não tem suporte direto para corner_radius)
 frame_principal = ctk.CTkFrame(app, width=450, height=825, corner_radius=15, fg_color='#272727')
-frame_principal.pack_propagate(False)  # Impede que o tamanho do frame se ajuste ao tamanho dos widgets
 frame_principal.pack()
 
 # Carregar a imagem usando Pillow
 logo_image = Image.open("/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Logo.png")
 # Criar a imagem CustomTkinter com a imagem carregada
-logo_progama = ctk.CTkImage(light_image=logo_image, dark_image=logo_image, size=(300, 100))
-label_logo = ctk.CTkLabel(frame_principal, image=logo_progama, text='')
-label_logo.pack(pady=10)
+#logo_progama = ctk.CTkImage(light_image=logo_image, dark_image=logo_image, size=(150, 60))
+#label_logo = ctk.CTkLabel(frame_principal, image=logo_progama, text='')
+#label_logo.pack(pady=10)
 
-font_path = 'assets/fonts/Inter_18pt-Regular.ttf'
+font_path = '/Users/rdgr777/rdPersonal/gerador_fmv/assets/fonts/Inter_18pt-Regular.ttf'
 font_family = 'Inter'
 
 try:
@@ -116,24 +125,56 @@ except:
     font_secondary = ("Arial", 15)
 
 color_font = '#9ed22c'
-# Função para Emitir Recibo
+
+
+# Função para emitir o recibo
 def criar_nota():
+    fontCorpo = ImageFont.truetype(r"/Users/rdgr777/rdPersonal/gerador_fmv/assets/fonts/Inter_18pt-Regular.ttf", 38)
     notaImg = Image.open(r"/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Nota FMV.png").convert("RGB")
     draw = ImageDraw.Draw(notaImg)
+
     # Formatando Datas
     data_atual = datetime.datetime.now()
     data_hoje = f"{data_atual.day} de {meses[data_atual.month]} de {data_atual.year}"
-    data_nota = f"{data_atual.day}-{data_atual.year}"
-    draw.text(campos_pil["data_hoje"], data_hoje, fill='black', font=font)
-    draw.text(campos_pil["nome"], input_nome.get(), fill='black', font=font)
-    draw.text((campos_pil["endereco"]), input_endereco.get(), fill='black', font=font)
-    draw.text(campos_pil["cpf"], input_cpf.get(), fill='black', font=font)
-    draw.text((campos_pil["tipo_servico"]), input_servico.get(), fill='black', font=font)
-    draw.text((campos_pil["valor_debito"]), combo_box_debito_credito.get(), fill='black', font=font)
-    draw.text(campos_pil["total"], valor_debito, fill='black', font=font)
-    draw.text(campos_pil["valor_extenso"], valor_extenso, fill='black', font=font)
-    draw.text(campos_pil["data_vencimento"], data_vencimento, fill='black', font=font)
-    notaImg.save(f"Nota : {nome}.jpg")
+    data_nota = f"{combo_box_debito_credito.get().upper()} {data_atual.day}-{data_atual.year}"
+    draw.text(campos_pil["nota"], data_nota, fill='black', font=fontCorpo)
+    draw.text(campos_pil["data_hoje"], data_hoje, fill='black', font=fontCorpo)
+    draw.text(campos_pil["nome"], input_nome.get(), fill='black', font=fontCorpo)
+    draw.text(campos_pil["endereco"], input_endereco.get('1.0', 'end-1c').strip(), fill='black', font=fontCorpo)
+    draw.text(campos_pil["cpf"], input_cpf.get(), fill='black', font=fontCorpo)
+
+    # Quebra de texto para Tipo de Serviço
+    desenhar_texto_com_quebra(draw, campos_pil["tipo_servico"], input_servico.get(), largura_max=25, font=fontCorpo,
+                              fill='black')
+
+    # Obtém o valor selecionado no ComboBox
+    tipo_pagamento = combo_box_debito_credito.get()
+
+    # Escolhe a posição correta com base no valor selecionado
+    if tipo_pagamento == "Débito":
+        campos_credito_debito_pil = campos_pil["valor_debito"]
+    else:
+        campos_credito_debito_pil = campos_pil["valor_credito"]
+
+    # Processamento do valor correto
+    valor_formatado = limpar_valor(input_valor.get())
+
+    draw.text(campos_credito_debito_pil, f"R$ {valor_formatado}", fill='black', font=fontCorpo)
+    draw.text(campos_pil["total"], f"R$ {valor_formatado}", fill='black', font=fontCorpo)
+
+    valor_extenso = numero_por_extenso(valor_formatado)
+    draw.text(campos_pil["valor_extenso"], f"({valor_extenso} reais)", fill='black', font=fontCorpo)
+    draw.text(campos_pil["data_vencimento"], input_data_vencimento.get(), fill='black', font=fontCorpo)
+
+    caminho_nota = f"notas/Nota_{input_nome.get()}.jpg"
+    notaImg.save(caminho_nota)
+
+    # Exibir pop-up apenas depois que a interface atualizar
+    if os.path.exists(caminho_nota):
+        app.after(100, lambda: CTkMessagebox(title="Sucesso", message=f"Nota emitida para {input_nome.get()}!",
+                                             icon="check"))
+    else:
+        app.after(100, lambda: CTkMessagebox(title="Erro", message="Falha ao emitir a nota.", icon="cancel"))
 # Função para formatar CPF
 def formatar_cpf(event):
     texto = input_cpf.get().replace(".", "").replace("-", "")
@@ -149,7 +190,6 @@ def formatar_cpf(event):
     elif len(texto) <= 11:
         input_cpf.delete(0, ctk.END)
         input_cpf.insert(0, f"{texto[:3]}.{texto[3:6]}.{texto[6:9]}-{texto[9:]}")
-
 # Função para formatar CEP
 def formatar_cep(event):
     texto = input_cep.get().replace("-", "")
@@ -159,8 +199,17 @@ def formatar_cep(event):
     elif len(texto) <= 8:
         input_cep.delete(0, ctk.END)
         input_cep.insert(0, f"{texto[:5]}-{texto[5:]}")
+# Funçao para Formatar Valor
+def limpar_valor(valor_str):
+    """ Remove 'R$', espaços e converte vírgula para ponto antes da conversão """
+    valor_limpo = valor_str.replace("R$", "").replace(".", "").replace(",", ".").strip()
 
-# Função para formatar Data
+    try:
+        return int(float(valor_limpo))  # Converte para float primeiro, depois para int
+    except ValueError:
+        return 0  # Retorna 0 caso a conversão falhe
+
+    # Função para formatar Data
 def formatar_data(event):
     texto = input_data.get().replace("/", "")
     if len(texto) <= 2:
@@ -172,6 +221,19 @@ def formatar_data(event):
     elif len(texto) <= 8:
         input_data.delete(0, ctk.END)
         input_data.insert(0, f"{texto[:2]}/{texto[2:4]}/{texto[4:]}")
+# Funçao para formatar Data Vencimento
+def formatar_data_vencimento(event):
+    texto = input_data_vencimento.get().replace("/", "")
+    if len(texto) <= 2:
+        input_data_vencimento.delete(0, ctk.END)
+        input_data_vencimento.insert(0, texto)
+    elif len(texto) <= 4:
+        input_data_vencimento.delete(0, ctk.END)
+        input_data_vencimento.insert(0, f"{texto[:2]}/{texto[2:]}")
+    elif len(texto) <= 8:
+        input_data_vencimento.delete(0, ctk.END)
+        input_data_vencimento.insert(0, f"{texto[:2]}/{texto[2:4]}/{texto[4:]}")
+
 # Campos
 label_nome = ctk.CTkLabel(frame_principal, corner_radius=8, width=campo_width, height=campos_height, text=campos[0], text_color=color_font, anchor='w', font=font)
 label_nome.pack()
@@ -222,7 +284,7 @@ label_data = ctk.CTkLabel(frame_principal, corner_radius=8, font=font, width=cam
 label_data.pack()
 
 # Campo Data com a máscara
-input_data = ctk.CTkEntry(frame_principal, corner_radius=8, font=font_secondary, placeholder_text_color='#FFFFFF', fg_color=fg_color, border_color=border_color, border_width=2, width=campo_width, height=campos_height, placeholder_text='Insira a Data XX/XXXX')
+input_data = ctk.CTkEntry(frame_principal, corner_radius=8, font=font_secondary, placeholder_text_color='#FFFFFF', fg_color=fg_color, border_color=border_color, border_width=2, width=campo_width, height=campos_height, placeholder_text='Insira a Data')
 
 # Bind para formatar a Data enquanto digita
 input_data.bind("<KeyRelease>", formatar_data)
@@ -231,11 +293,15 @@ input_data.pack()
 label_data_vencimento = ctk.CTkLabel(frame_principal, corner_radius=8, font=font, width=campo_width, height=campos_height, text=campos[7], text_color=color_font, anchor='w')
 label_data_vencimento.pack()
 
-input_data_vencimento = ctk.CTkEntry(frame_principal, corner_radius=8, font=font_secondary, placeholder_text_color='#FFFFFF', fg_color=fg_color, border_color=border_color, border_width=2, width=campo_width, height=campos_height, placeholder_text='Insira a Data de Vencimento XX/XXXX')
-input_data_vencimento.bind("<KeyRelease>", formatar_data)
+input_data_vencimento = ctk.CTkEntry(frame_principal, corner_radius=8, font=font_secondary, placeholder_text_color='#FFFFFF', fg_color=fg_color, border_color=border_color, border_width=2, width=campo_width, height=campos_height, placeholder_text='Insira a Data de Vencimento')
+input_data_vencimento.bind("<KeyRelease>", formatar_data_vencimento)
 input_data_vencimento.pack()
 
-button_salvar = ctk.CTkButton(frame_principal, width=button_width, corner_radius=8, height=button_height, fg_color='transparent', text_color=color_font, text='Salvar', font=('SF Pro Display', 18), border_color=color_font, border_width=2, hover_color='#5d7528')
+label_valor = ctk.CTkLabel(frame_principal,corner_radius=8,font=font,width=campo_width,height=campos_height,text_color=color_font,text=campos[9],anchor='w')
+label_valor.pack()
+input_valor = ctk.CTkEntry(frame_principal,corner_radius=8,font=font,width=campo_width,height=campos_height,placeholder_text_color='#FFFFFF',fg_color=fg_color,border_color=border_color,border_width=2,placeholder_text='Insira o Valor da Nota')
+input_valor.pack()
+button_salvar = ctk.CTkButton(frame_principal, width=button_width, corner_radius=8, height=button_height, fg_color='transparent', text_color=color_font, text='Salvar', font=font, border_color=color_font, border_width=2, hover_color='#5d7528',command=criar_nota)
 button_salvar.pack(pady=25)
 
 app.update_idletasks()
