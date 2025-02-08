@@ -10,12 +10,12 @@ import os
 BASE_DIR = Path(__file__).resolve().parent
 NOTAS_DIR = BASE_DIR / "notas"
 NOTAS_DIR.mkdir(exist_ok=True)
-IS_WINDOWS = platform.system() == "Windows" and "MacOs"
+IS_WINDOWS_AND_MACOS = platform.system() == ['Windows','Darwin']
 
 # Uso
-LOGO_ICO = Path ("/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/logo.ico")
-LOGO_IMG = Path ("/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Logo.png")
-NOTA_IMG = Path('/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Nota-FMV.png')
+LOGO_ICO = Path ("/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/logo-mae-pf.ico")
+LOGO_IMG = Path ("/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/logo-mae-pf.png")
+NOTA_IMG = Path('/Users/rdgr777/rdPersonal/gerador_fmv/assets/imgs/png/Recibo.png')
 FONT_PATH = Path ("/Users/rdgr777/rdPersonal/gerador_fmv/assets/fonts/Inter_18pt-Regular.ttf")
 
 if not os.path.exists(FONT_PATH):
@@ -117,7 +117,7 @@ fg_color = '#535353'
 # Criar a janela Principal
 app = ctk.CTk()
 app.title('Gerador de Nota Física')
-if IS_WINDOWS and os.path.exists(LOGO_ICO):
+if IS_WINDOWS_AND_MACOS and os.path.exists(LOGO_ICO):
     app.iconbitmap(bitmap=LOGO_ICO)
 app.geometry('450x800+750+135')
 
@@ -125,7 +125,7 @@ app.geometry('450x800+750+135')
 frame_principal = ctk.CTkFrame(app, width=450, height=825, corner_radius=15, fg_color='#272727')
 frame_principal.pack()
 
-if IS_WINDOWS and os.path.exists(LOGO_IMG):
+if IS_WINDOWS_AND_MACOS and os.path.exists(LOGO_IMG):
     # Carregar a imagem usando Pillow
     logo_image = Image.open(LOGO_IMG)
     # Criar a imagem CustomTkinter com a imagem carregada
